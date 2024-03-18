@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Microsoft.VisualBasic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Runtime.Versioning;
@@ -11,9 +12,12 @@ namespace TheStrongest
         private SpriteBatch _spriteBatch;
         private Texture2D knightSprite;
         Texture2D backgroundSprite;
-        double xpos = 0, ypos = 0;
+       Vector2  _position;
+       private Vector2 dir;
+        Vector2 position;
         int w;
         int h;
+        public float speed = 100;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -41,7 +45,7 @@ namespace TheStrongest
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            knightSprite = Content.Load<Texture2D>("k9vd_11lt_230630");
+            knightSprite = Content.Load<Texture2D>("1 IDLE_000");
             backgroundSprite = Content.Load<Texture2D>("pixel_art___dungeon_background__loopable__by_albertov_dbpx7j9");
         }
 
@@ -49,43 +53,62 @@ namespace TheStrongest
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            float speed = 500; // pixels per second
+            
+            
+
+
+            var dir = Vector2.Zero;
             if (Keyboard.GetState().IsKeyDown(Keys.W))
-            {
-                ypos -= 3;
-            }
+                dir.Y += 1;
             if (Keyboard.GetState().IsKeyDown(Keys.S))
-            {
-                ypos += 3;
-            }
+                dir.Y -= 1;
             if (Keyboard.GetState().IsKeyDown(Keys.A))
-            {
-                xpos -= 3;
-            }
+                dir.X += 1;
             if (Keyboard.GetState().IsKeyDown(Keys.D))
-            {
-                xpos += 3;
-            }
-            if(Keyboard.GetState().IsKeyDown(Keys.W) && (Keyboard.GetState().IsKeyDown(Keys.D))  {
-                xpos += 4.24264068712;
-                ypos += 4.24264068712;
-            }
+                dir.X -= 1;
+
+            // skip further processing if no keys are pressed.
+            if (dir == Vector2.Zero)
+                return;
+
+            // Ensure the vector has unit length
+            dir.Normalize();
+            // Define a speed variable for how many units to move
+            // Should probably also scale the speed with the delta time 
+            var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _position += dir * speed * deltaTime;
             // TODO: Add your update logic here
-
-
+            if (_position.X < -w)
+            {
+                _position.X = 0;
+            }
+            if (_position.X > 0)
+            {
+                _position.X = -w;
+            }
+            if (_position.Y < -h)
+            {
+                _position.Y = 0;
+            }
+            if (_position.Y > 0)
+            {
+                _position.Y = -h;
+            }
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
+           
             // TODO: Add your drawing code here
             _spriteBatch.Begin();
-            _spriteBatch.Draw(backgroundSprite, new Rectangle(0, 0, 1920, 1080), Color.White);
-            _spriteBatch.Draw(knightSprite, new Rectangle(xpos, ypos, 200, 200), Color.White);
+            _spriteBatch.Draw(backgroundSprite, _position, null, Color.White, 0f, Vector2.Zero, 2f, SpriteEffects.None, 0f);
+            _spriteBatch.Draw(knightSprite, new Vector2(w/2 - 150, h/2 - 133), null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f); 
             _spriteBatch.End();
 
-            base.Draw(gameTime);
+            base.Draw(gameTime);    
         }
     }
 }
